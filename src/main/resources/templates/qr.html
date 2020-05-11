@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+    <title>qr</title>
+</head>
+<body>
+
+<div style="page-break-before:always;margin-top:10mm" id="main">
+    <image id="img"></image>
+</div>
+</body>
+<script src="https://code.jquery.com/jquery-3.4.1.js"
+        integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU="
+        crossorigin="anonymous"></script>
+<script src="https://cdn.bootcss.com/sweetalert/2.1.2/sweetalert.min.js"></script>
+<script th:inline="javascript">
+    //<![CDATA[
+
+    var img = [[${base64Image}]];
+
+    $("#img").attr("src","data:image;base64,"+img);
+
+    //]]>
+</script>
+</html>
