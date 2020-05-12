@@ -1,10 +1,12 @@
-package site.moku.qrcodescan.qrcode;
+package site.moku.qrcodescan.qrcode.utils;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
@@ -16,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
+@Component
 public class QRCodeUtils {
     private static final String CHARSET = "utf-8";
     private static final String FORMAT_NAME = "JPG";
@@ -26,11 +29,13 @@ public class QRCodeUtils {
     // LOGO高度    
     private static final int HEIGHT = 60;
 
-    public static String generateBase64Image(String content, String imgPath,
-                                      boolean needCompress) {
+    @Value("${logo.imagePath}")
+    private String imagePath;
+
+    public String generateBase64Image(String content, boolean needCompress) {
         String result = "";
         try {
-            BufferedImage image = createImage(content, imgPath, needCompress);
+            BufferedImage image = createImage(content, needCompress);
             result = encodeBase64Image(image);
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,7 +44,7 @@ public class QRCodeUtils {
     }
 
 
-    private static String encodeBase64Image(BufferedImage image) {
+    private String encodeBase64Image(BufferedImage image) {
         byte[] buffer = null;
         ByteArrayOutputStream os = new ByteArrayOutputStream();
         try {
@@ -52,8 +57,8 @@ public class QRCodeUtils {
     }
 
 
-    public static BufferedImage createImage(String content, String imgPath,
-                                             boolean needCompress) throws Exception {
+    public BufferedImage createImage(String content,
+                                     boolean needCompress) throws Exception {
         Hashtable<EncodeHintType, Object> hints = new Hashtable<EncodeHintType, Object>();
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.CHARACTER_SET, CHARSET);
@@ -70,33 +75,27 @@ public class QRCodeUtils {
                         : 0xFFFFFFFF);
             }
         }
-        if (imgPath == null || "".equals(imgPath)) {
-            return image;
-        }
-        // 插入图片    
-        QRCodeUtils.insertImage(image, imgPath, needCompress);
+        // 插入图片
+        this.insertImage(image, needCompress);
         return image;
     }
 
     /**
-     * 插入LOGO  
+     * 插入LOGO
      *
-     * @param source
-     *            二维码图片  
-     * @param imgPath
-     *            LOGO图片地址  
-     * @param needCompress
-     *            是否压缩  
+     * @param source       二维码图片
+     * @param needCompress 是否压缩
      * @throws Exception
      */
-    private static void insertImage(BufferedImage source, String imgPath,
-                                    boolean needCompress) throws Exception {
-        File file = new File(imgPath);
+    private void insertImage(BufferedImage source,
+                             boolean needCompress) throws Exception {
+        String filePath = this.getClass().getClassLoader().getResource("").getPath()+imagePath;
+        File file = new File(filePath);
         if (!file.exists()) {
-            System.err.println(""+imgPath+"   该文件不存在！");
+            System.err.println("" + filePath + "   该文件不存在！");
             return;
         }
-        Image src = ImageIO.read(new File(imgPath));
+        Image src = ImageIO.read(new File(filePath));
         int width = src.getWidth(null);
         int height = src.getHeight(null);
         if (needCompress) { // 压缩LOGO    
@@ -126,10 +125,10 @@ public class QRCodeUtils {
         graph.dispose();
     }
 
-    public static void main(String[] args) throws Exception {
-        String text = "http://www.baidu.com";  //这里设置自定义网站url
-        String logoPath = "";
-        String destPath = "C:\\Users\\louisliu\\Desktop\\";
-        System.out.println(QRCodeUtils.createImage(text, logoPath, true));
-    }
+//    public static void main(String[] args) throws Exception {
+//        String text = "http://www.baidu.com";  //这里设置自定义网站url
+//        String logoPath = "";
+//        String destPath = "C:\\Users\\louisliu\\Desktop\\";
+//        System.out.println(QRCodeUtils.createImage(text, logoPath, true));
+//    }
 }  

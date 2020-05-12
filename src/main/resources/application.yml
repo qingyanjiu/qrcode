@@ -1,5 +1,12 @@
 spring:
   application:
     name: qrcode
+  redis:
+    host: pass.moku.site
+    port: 34567
 server:
-  port: 8080
+  port: 30001
+
+logo:
+  imagePath: "/static/logo.png"
+
